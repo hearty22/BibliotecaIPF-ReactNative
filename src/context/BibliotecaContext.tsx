@@ -18,6 +18,7 @@ import { Cola } from "@/estructuras/Cola";
 import { Pila } from "@/estructuras/Pila";
 import { leerEstado, guardarEstado, type EstadoPersistido } from "@/lib/almacenamiento";
 import { buscarLibroPorIsbn } from "@/lib/catalogo";
+import { fechaEnDias } from "@/lib/formato";
 import {
   cancelarRecordatorio,
   configurarNotificaciones,
@@ -118,12 +119,6 @@ function crearId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-function fechaDeDevolucion(): string {
-  const vence = new Date();
-  vence.setDate(vence.getDate() + DIAS_PRESTAMO);
-  return vence.toISOString();
-}
-
 export function BibliotecaProvider({ children }: { children: ReactNode }) {
   const [interno, setInterno] = useState<Interno>(crearEstadoInicial);
   const [hidratando, setHidratando] = useState(true);
@@ -211,7 +206,7 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
       }
 
       if (disponibles(libro) > 0) {
-        const vence = fechaDeDevolucion();
+        const vence = fechaEnDias(DIAS_PRESTAMO);
         mutar((estado) => {
           estado.prestamos = [
             { isbn: libro.isbn, vence, recordar: false, recordatorioId: null },
