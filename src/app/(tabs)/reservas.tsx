@@ -5,6 +5,7 @@ import { AppState, FlatList, StyleSheet, Text, View } from "react-native";
 import { AvisosBiblioteca } from "@/components/AvisosBiblioteca";
 import { Cargando } from "@/components/Cargando";
 import { FilaPrestamo } from "@/components/FilaPrestamo";
+import { Separador } from "@/components/Separador";
 import { PERSONA_ACTUAL } from "@/constants/config";
 import { COLORES, ESPACIOS, RADIOS, TIPOGRAFIA } from "@/constants/tema";
 import { useBiblioteca } from "@/context/BibliotecaContext";
@@ -133,10 +134,6 @@ export default function Reservas() {
   );
 }
 
-function Separador() {
-  return <View style={estilos.separador} />;
-}
-
 const estilos = StyleSheet.create({
   lista: {
     padding: ESPACIOS.md,
@@ -179,8 +176,5 @@ const estilos = StyleSheet.create({
   detalleEspera: {
     color: COLORES.textoSuave,
     fontSize: TIPOGRAFIA.detalle,
-  },
-  separador: {
-    height: ESPACIOS.sm,
   },
 });

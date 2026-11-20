@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { Boton } from "@/components/Boton";
+import { Separador } from "@/components/Separador";
 import { COLORES, ESPACIOS, RADIOS, TIPOGRAFIA } from "@/constants/tema";
 import { useBiblioteca } from "@/context/BibliotecaContext";
 import { LIBROS } from "@/data/libros";
@@ -31,7 +32,8 @@ export default function Mostrador() {
             <Text style={estilos.titulo}>{item.titulo}</Text>
             <Text style={estilos.detalle}>Al frente: {personas[0]}</Text>
             <Text style={estilos.detalle}>
-              {personas.length} {personas.length === 1 ? "persona espera" : "personas esperan"}
+              {personas.length}{" "}
+              {personas.length === 1 ? "persona espera" : "personas esperan"}
             </Text>
             <Boton
               onPress={() => {
@@ -45,10 +47,6 @@ export default function Mostrador() {
       ItemSeparatorComponent={Separador}
     />
   );
-}
-
-function Separador() {
-  return <View style={estilos.separador} />;
 }
 
 const estilos = StyleSheet.create({
@@ -79,8 +77,5 @@ const estilos = StyleSheet.create({
   },
   pie: {
     marginTop: ESPACIOS.lg,
-  },
-  separador: {
-    height: ESPACIOS.sm,
   },
 });
