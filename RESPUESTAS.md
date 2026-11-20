@@ -111,7 +111,7 @@ Cuando cambia el `value` del Context se vuelven a renderizar **todos** sus consu
 | 2 | Toca un libro | Raíz: `[(tabs)]`. Catálogo: `[index, libro/9789507310003]` |
 | 3 | Toca "Reservar" | Raíz: `[(tabs), reservar/9789507310003 (modal)]`. Catálogo: `[index, libro/…]` |
 | 4 | Toca "Confirmar" | Raíz: `[(tabs)]` (el modal se cerró) y la tab activa pasa a ser Reservas. Catálogo: `[index, libro/…]` |
-| 5 | Atrás (Android) | En Reservas no hay nada que desapilar en la raíz: el atrás lo maneja el navegador de tabs. Como `Tabs` usa `backBehavior="initialRoute"` con anchor en `(catalogo)`, vuelve a la tab Catálogo, que conserva el detalle en su stack |
+| 5 | Atrás (Android) | En Reservas no hay nada que desapilar en la raíz: el atrás lo maneja el navegador de tabs. Con el `backBehavior` por defecto (`firstRoute`) vuelve a la tab Catálogo, que conserva el detalle en su stack |
 | 6 | Toca la tab Catálogo | El detalle: cada tab conserva su propio stack y nadie lo limpió |
 
 **a) Paso 4.** Usé `router.dismissTo("/reservas")` (`src/app/reservar/[isbn].tsx:44`).
