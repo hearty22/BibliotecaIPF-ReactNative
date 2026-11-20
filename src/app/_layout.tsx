@@ -30,6 +30,10 @@ function Navegacion() {
       <Stack.Screen name="buscar" options={{ title: "Buscar" }} />
       <Stack.Screen name="escanear" options={{ title: "Escanear" }} />
       <Stack.Screen
+        name="+not-found"
+        options={{ title: "Página no encontrada" }}
+      />
+      <Stack.Screen
         name="reservar/[isbn]"
         options={{ presentation: "modal", title: "Confirmar reserva" }}
       />
