@@ -46,12 +46,11 @@ El catálogo usa ISBN EAN-13 válidos. Para la prueba con cámara:
 ## Árbol de rutas
 
 Cada `_layout.tsx` define un navegador. El árbol de `src/app` es:
-
 ```
 src/app/
 ├── _layout.tsx                        Stack raíz (provider, modales, rutas protegidas)
 ├── (tabs)/
-│   ├── _layout.tsx                    Tabs (Catálogo / Mis reservas), anchor "(catalogo)"
+│   ├── _layout.tsx                    Tabs (Catálogo / Mis reservas)
 │   ├── (catalogo)/
 │   │   ├── _layout.tsx                Stack de la tab Catálogo
 │   │   ├── index.tsx                  /
@@ -68,6 +67,8 @@ src/app/
 ```
 
 `/login` y `/mostrador` no se protegen con redirects manuales: el layout raíz los envuelve en `Stack.Protected` con `guard={!sesion}` y `guard={sesion}`.
+
+El `anchor` está en el **layout raíz** (`anchor: "(tabs)"`), no en `(tabs)`: así un deep link a `/buscar` o `/escanear` deja las tabs debajo. Declararlo también en `(tabs)` con `anchor: "(catalogo)"` hacía que un deep link a `/reservas` abriera el Catálogo, porque el anchor de una tab pisa la tab pedida por la URL (verificado en el build de producción). Nota: en desarrollo web, `expo start` usa rutas asíncronas y los `unstable_settings` pueden no aplicarse; el comportamiento se comprueba en el teléfono o en un export.
 
 ## Configuración nativa (`app.json`)
 
@@ -146,6 +147,33 @@ src/constants/    tema.ts y configuración del dominio
 ```
 
 Las importaciones van en un solo sentido: `app` → `components`/`hooks`/`context` → `lib`/`estructuras` → `data`/`types`/`constants`.
+
+## Capturas
+
+En `capturas/` están las pantallas del build web (`pnpm exec expo start --web`) en un viewport de teléfono (390 × 844):
+
+| Archivo | Pantalla |
+|---|---|
+| `01-catalogo-cargando.png` | Catálogo con el indicador de carga |
+| `02-catalogo-datos.png` | Catálogo con datos y "Vistos recientemente" |
+| `03-catalogo-error.png` | Catálogo con el error y el botón "Reintentar" |
+| `04-buscador.png` | `/buscar?q=borges` con resultados |
+| `05-detalle-inexistente.png` | `/libro/123` con el mensaje y el enlace al catálogo |
+| `06-detalle-valido.png` | Detalle con ejemplares y año |
+| `07-reserva-con-ejemplares.png` | Confirmación con préstamo de 7 días |
+| `08-reserva-sin-ejemplares.png` | Confirmación con ingreso a la lista de espera (posición 3) |
+| `09-reservas.png` | Mis préstamos con vencimiento, "Recordarme" y espera con posición |
+| `10-escaner-pendiente.png` | Escáner en el estado "preguntable", con ISBN manual |
+| `11-login.png` | Ingreso del personal |
+| `12-mostrador-antes.png` | Mostrador con Rayuela al frente (Ana Quiroga) y 2 personas esperando |
+| `13-mostrador-despues.png` | Después de "Entregar al siguiente" (Bruno Salas, 1 persona) |
+| `14-404.png` | Pantalla 404 con la URL inexistente |
+
+Estas capturas no reemplazan las que solo se pueden sacar en el teléfono, porque en el build web no existen:
+
+- los cuatro estados reales de cámara y el diálogo del sistema con el texto de propósito,
+- la notificación recibida a los 15 segundos,
+- el canal `prestamos` en los ajustes de Android.
 
 ## Verificación
 
