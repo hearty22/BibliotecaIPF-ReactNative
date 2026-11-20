@@ -1,7 +1,7 @@
 import type { PermissionResponse } from "expo";
 import { useCameraPermissions } from "expo-camera";
 import * as Notifications from "expo-notifications";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { EstadoPermiso, RecursoPermiso } from "@/types";
 
@@ -62,7 +62,7 @@ export function usePermiso(recurso: RecursoPermiso): UsePermiso {
       ? "preguntable"
       : "cargando";
 
-  const pedir = async (): Promise<EstadoPermiso> => {
+  const pedir = useCallback(async (): Promise<EstadoPermiso> => {
     const nueva = esCamara
       ? await pedirCamara()
       : await Notifications.requestPermissionsAsync();
@@ -70,9 +70,9 @@ export function usePermiso(recurso: RecursoPermiso): UsePermiso {
       setPermisoNotificaciones(nueva);
     }
     return estadoDesde(nueva);
-  };
+  }, [esCamara, pedirCamara]);
 
-  const refrescar = async (): Promise<EstadoPermiso> => {
+  const refrescar = useCallback(async (): Promise<EstadoPermiso> => {
     const nueva = esCamara
       ? await consultarCamara()
       : await Notifications.getPermissionsAsync();
@@ -80,7 +80,7 @@ export function usePermiso(recurso: RecursoPermiso): UsePermiso {
       setPermisoNotificaciones(nueva);
     }
     return estadoDesde(nueva);
-  };
+  }, [esCamara, consultarCamara]);
 
   return { estado, pedir, refrescar };
 }
