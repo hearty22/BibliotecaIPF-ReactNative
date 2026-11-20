@@ -3,7 +3,10 @@ import { Tabs } from "expo-router";
 
 import { COLORES } from "@/constants/tema";
 
-// Ancla la tab de Catálogo: un deep link a /buscar deja las pestañas debajo.
+// La tab de Catálogo es la que se muestra al abrir la app y al volver con "atrás".
+// Según la documentación, el anchor de una tab exige `backBehavior: "initialRoute"`.
+// En expo-router 58.0.32 ese warning igual aparece: la prop llega al router pero no
+// al chequeo interno. No es un problema de esta configuración.
 export const unstable_settings = {
   anchor: "(catalogo)",
 };
@@ -11,6 +14,7 @@ export const unstable_settings = {
 export default function TabsLayout() {
   return (
     <Tabs
+      backBehavior="initialRoute"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: COLORES.primario,

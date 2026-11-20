@@ -6,6 +6,11 @@ import { Cargando } from "@/components/Cargando";
 import { COLORES, ESPACIOS } from "@/constants/tema";
 import { BibliotecaProvider, useBiblioteca } from "@/context/BibliotecaContext";
 
+// Un deep link a /buscar o /escanear deja las tabs debajo en la pila.
+export const unstable_settings = {
+  anchor: "(tabs)",
+};
+
 function Navegacion() {
   const { sesion, hidratando } = useBiblioteca();
 
