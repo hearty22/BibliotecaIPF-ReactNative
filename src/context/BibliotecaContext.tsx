@@ -126,6 +126,9 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let activo = true;
     configurarNotificaciones();
+    // El canal se crea al abrir la app: Android 13+ lo exige antes de que se
+    // muestre el diálogo de permiso.
+    void prepararCanalPrestamos();
 
     const hidratar = async () => {
       // Si el almacenamiento falla, la app arranca vacía en vez de romperse.
