@@ -1,6 +1,6 @@
 # RESPUESTAS — TP 4 Biblioteca IPF
 
-> **Borrador técnico.** Las respuestas están ancladas al código de este repositorio. Los puntos marcados con ⚠ dependen del dispositivo (Android/iOS, cantidad de rechazos, fabricante) y conviene confirmarlos en el teléfono antes de entregar. Reescribí con tus palabras lo que haga falta: la cátedra evalúa que las respuestas sean propias.
+> **Cómo se verificó.** Las respuestas están ancladas al código de este repositorio. El comportamiento de montaje y limpieza de **B1** se midió ejecutando la app con un `console.log` temporal en la limpieza de `useLibros` (el log se sacó después; el código entregado no tiene `console.log`). Los valores por defecto de React Navigation se verificaron en el código instalado de `expo-router`, y la política de permisos en la documentación de Android. Reescribí con tus palabras lo que haga falta: la cátedra evalúa que las respuestas sean propias.
 
 ---
 
@@ -15,7 +15,22 @@
 3. **Respuesta con error.** El `.catch` (`:35`) hace `setFase({ nombre: "error" })`. Render: `error` con el mensaje en español y `libros = []`. La pantalla muestra `MensajeEstado` + botón "Reintentar" (`src/app/(tabs)/(catalogo)/index.tsx:28-33`).
 4. **Reintentar.** `reintentar()` (`useLibros.ts:45`) pasa la fase a `cargando` **y** suma 1 a `intento` en la misma actualización. Ese cambio de `fase.intento` vuelve a ejecutar el efecto: la limpieza marca `vigente = false` en el pedido anterior y arranca uno nuevo. Renders: cargando → listo/error.
 
-**b) ¿Se desmonta el Catálogo?** ⚠ En React Navigation las tabs conservan montadas las pantallas ya visitadas, y abrir un detalle apila la pantalla nueva **encima** del Catálogo dentro del stack de la tab (`src/app/(tabs)/(catalogo)/_layout.tsx`). Por eso la limpieza **no** se ejecuta al cambiar de pestaña ni al abrir un detalle: el componente sigue montado y las respuestas siguen siendo válidas.
+**b) ¿Se desmonta el Catálogo?** No, en ninguno de los dos casos.
+
+- Las tabs montan la pantalla en el primer foco (`lazyByDefault: true` en el navegador de tabs de React Navigation) y después **no la desmontan** al cambiar de pestaña.
+- Abrir un detalle apila la pantalla nueva **encima** del Catálogo dentro del stack de la tab (`src/app/(tabs)/(catalogo)/_layout.tsx`), así que el Catálogo sigue montado abajo.
+
+Medido con un `console.log` temporal en la limpieza de `useLibros.ts:40` y la app abierta en un navegador controlado por protocolo (Chrome DevTools):
+
+| Acción | ¿Aparece el log de limpieza? |
+|---|---|
+| Cambiar a la tab "Mis reservas" | No |
+| Volver a la tab "Catálogo" | No (y el detalle sigue en pantalla) |
+| Abrir un detalle | No |
+| Tocar "Reintentar" | **Sí** |
+| Recargar la página (desmontar el árbol) | **Sí** |
+
+Por eso la limpieza es un seguro para los casos en que el efecto **se vuelve a ejecutar** (reintentar) o la pantalla **se desmonta** (recarga, cierre de la app), no para los cambios de pestaña: ahí la respuesta que llega sigue siendo la vigente.
 
 La limpieza (`useLibros.ts:40-42`) se ejecuta en dos situaciones reales:
 
@@ -96,7 +111,7 @@ Cuando cambia el `value` del Context se vuelven a renderizar **todos** sus consu
 | 2 | Toca un libro | Raíz: `[(tabs)]`. Catálogo: `[index, libro/9789507310003]` |
 | 3 | Toca "Reservar" | Raíz: `[(tabs), reservar/9789507310003 (modal)]`. Catálogo: `[index, libro/…]` |
 | 4 | Toca "Confirmar" | Raíz: `[(tabs)]` (el modal se cerró) y la tab activa pasa a ser Reservas. Catálogo: `[index, libro/…]` |
-| 5 | Atrás (Android) | ⚠ En Reservas no hay nada que desapilar en la raíz: el atrás lo maneja el navegador de tabs y vuelve a Catálogo, que muestra el detalle (o sale de la app, según la versión de React Navigation) |
+| 5 | Atrás (Android) | En Reservas no hay nada que desapilar en la raíz: el atrás lo maneja el navegador de tabs. Como `Tabs` usa `backBehavior="initialRoute"` con anchor en `(catalogo)`, vuelve a la tab Catálogo, que conserva el detalle en su stack |
 | 6 | Toca la tab Catálogo | El detalle: cada tab conserva su propio stack y nadie lo limpió |
 
 **a) Paso 4.** Usé `router.dismissTo("/reservas")` (`src/app/reservar/[isbn].tsx:44`).
@@ -123,7 +138,7 @@ Cuando cambia el `value` del Context se vuelven a renderizar **todos** sus consu
 |---|---|---|---|
 | `bibliotecaipf://libro/9789507310003` | Detalle del libro, con tabs | Tabs + Catálogo (el detalle vive en el stack de la tab) | `src/app/(tabs)/(catalogo)/libro/[isbn].tsx` y el grupo `(catalogo)` |
 | `bibliotecaipf://libro/123` | Detalle con "El ISBN 123 no está en el catálogo" y enlace al catálogo | Tabs | La validación del parámetro dentro de la pantalla (`normalizarParametro` + `buscarLibroPorIsbn`) |
-| `bibliotecaipf://buscar?q=borges` | Buscador con la consulta cargada | Tabs, porque el `anchor` es `(catalogo)` | `src/app/(tabs)/_layout.tsx` (`unstable_settings.anchor`) |
+| `bibliotecaipf://buscar?q=borges` | Buscador con la consulta cargada | Tabs con el Catálogo, porque el layout raíz declara `anchor: "(tabs)"` | `src/app/_layout.tsx` (`unstable_settings.anchor`) |
 | `bibliotecaipf://mostrador` (sin sesión) | Catálogo: la ruta no existe | — | `Stack.Protected guard={sesion}` en `src/app/_layout.tsx:50-52` |
 | `bibliotecaipf://reserva` | Redirige a `/reservas` | Tabs | `src/app/reserva.tsx` (`<Redirect>`) |
 | `bibliotecaipf://escanear` (cámara bloqueada) | Escáner con el aviso y el botón "Abrir Ajustes" | — | `usePermiso` + `src/app/escanear.tsx` |
@@ -148,7 +163,7 @@ Cuando cambia el `value` del Context se vuelven a renderizar **todos** sus consu
 
 ### D1. Recorrido completo de la cámara
 
-⚠ El texto exacto del diálogo y la cantidad de rechazos dependen de la versión de Android y del fabricante.
+Desde Android 11, si la persona rechaza el permiso **dos veces**, el sistema deja de mostrar el diálogo y `canAskAgain` pasa a `false`. En iOS hay **un solo** pedido: el primer rechazo ya bloquea (algunos fabricantes con capas propias pueden cambiar el texto del diálogo, no la cantidad de pedidos).
 
 | # | Acción | Qué muestra la app | `status` | `canAskAgain` |
 |---|---|---|---|---|
